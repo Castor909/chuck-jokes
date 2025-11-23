@@ -66,6 +66,19 @@ class JokesTable extends Table
             ->requirePresence('punchline', 'create')
             ->allowEmptyString('punchline');
 
+        $validator
+            ->scalar('api_id')
+            ->maxLength('api_id', 255)
+            ->allowEmptyString('api_id');
+
         return $validator;
+    }
+
+    public function buildRules(RulesChecker $rules): RulesChecker
+    {
+        // Ensure api_id is unique when provided
+        $rules->add($rules->isUnique(['api_id'], 'El id de la API ya existe.'));
+
+        return $rules;
     }
 }

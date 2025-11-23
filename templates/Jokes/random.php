@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string|null $joke
+ * @var string|null $apiId
  */
 ?>
 <h1>Chiste aleatorio</h1>
@@ -14,6 +15,7 @@
     <?= $this->Form->hidden('setup', ['value' => '']) ?>
     <?= $this->Form->hidden('punchline', ['value' => $joke]) ?>
     <?= $this->Form->hidden('joke', ['value' => $joke]) ?>
+    <?= $this->Form->hidden('api_id', ['value' => $apiId]) ?>
     <?= $this->Form->button(__('Guardar')) ?>
     <?= $this->Form->end() ?>
 <?php else: ?>

@@ -28,6 +28,7 @@ class Joke extends Entity
     protected array $_accessible = [
         'setup' => true,
         'punchline' => true,
+        'api_id' => true,
         'created' => true,
         'modified' => true,
         'joke' => true,
