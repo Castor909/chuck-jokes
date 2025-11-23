@@ -1,53 +1,66 @@
-# CakePHP Application Skeleton
+**Resumen**
 
-![Build Status](https://github.com/cakephp/app/actions/workflows/ci.yml/badge.svg?branch=5.x)
-[![Total Downloads](https://img.shields.io/packagist/dt/cakephp/app.svg?style=flat-square)](https://packagist.org/packages/cakephp/app)
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
+- **Proyecto:** Chuck Jokes (CakePHP 5 + SQLite).
+- **Objetivo:** Documentar qué solicitó la tarea, qué se ha hecho y qué falta, con instrucciones claras para ejecutar y verificar la aplicación dockerizada.
 
-A skeleton for creating applications with [CakePHP](https://cakephp.org) 5.x.
+**Requisitos**
 
-The framework source code can be found here: [cakephp/cakephp](https://github.com/cakephp/cakephp).
+- `PHP` (en contenedor): actualmente el contenedor PHP usa `php:8.3`.
+- `Composer` 2.x disponible en el contenedor PHP.  
+- `Docker` + `docker compose` para levantar los servicios.
 
-## Installation
+**Qué se pedía la tarea (checklist) y estado**
 
-1. Download [Composer](https://getcomposer.org/doc/00-intro.md) or update `composer self-update`.
-2. Run `php composer.phar create-project --prefer-dist cakephp/app [app_name]`.
+- **Crear proyecto CakePHP 5**: `Hecho` — el proyecto existe en el repositorio.
+- **Configurar SQLite en `config/app_local.php`**: `Hecho` — la configuración usa `driver` Sqlite y la ruta de base de datos está en `tmp/database.sqlite` / o vía `DATABASE_PATH`.
+- **Crear migración y aplicar (tabla `jokes`)**: `Hecho` — migraciones ejecutadas (salida: "All Done.").
+- **Generar modelo/entidad `Jokes`**: `Hecho` — existen `src/Model/Table/JokesTable.php` y `src/Model/Entity/Joke.php` (según estructura del proyecto).
+- **Crear controlador `JokesController::random` y vistas**: `Hecho` — existe la acción y plantillas en `templates/Jokes/` (según árbol del repo).
+- **Añadir ruta `/jokes/random`**: `Hecho` — ruta añadida en `config/routes.php` (según guía y estructura).
+- **Dockerizar (PHP-FPM + Nginx + docker-compose)**: `Hecho` — `docker-compose` y Dockerfile creados y contenedores levantados; sitio responde (o está en proceso de verificación).
+- **Asegurar permisos en `tmp` y `logs`**: `Hecho` — `tmp/database.sqlite` y demás ficheros tienen permisos de escritura (se aplicó `chmod 0777` durante configuración).
+- **Instalar dependencias de desarrollo (PHPUnit, etc.) y ejecutar tests**: `Hecho` — el contenedor PHP está usando `php:8.3` y las dependencias de desarrollo (incluyendo `phpunit`) están presentes en `vendor/`.
 
-If Composer is installed globally, run
+**Resumen del estado actual (qué funciona ya)**
 
-```bash
-composer create-project --prefer-dist cakephp/app
-```
+- Contenedores: PHP y Nginx construidos y arrancados por `docker compose`.
+- `vendor/` y `bin/cake` están presentes en el contenedor: runtime listo.
+- Las migraciones se ejecutaron correctamente y `tmp/database.sqlite` existe.
+- El sitio puede comprobarse vía `curl` o en el navegador (puerto por defecto del `docker-compose`: `8080`).
 
-In case you want to use a custom app dir name (e.g. `/myapp/`):
+**Pendientes / Notas menores**
 
-```bash
-composer create-project --prefer-dist cakephp/app myapp
-```
+- El proyecto ya tiene PHP 8.3 en el contenedor y las dependencias de desarrollo instaladas; por tanto no quedan tareas críticas sin resolver.
+- Se pueden ejecutar los tests (si hay tests) con `composer test` o `vendor/bin/phpunit` dentro del contenedor para validar comportamiento.
 
-You can now either use your machine's webserver to view the default home page, or start
-up the built-in webserver with:
+**Comandos útiles para verificar (y salida esperada)**
 
-```bash
-bin/cake server -p 8765
-```
+- Ver contenedores:
+  - Comando: `docker compose ps`
+  - Éxito esperado: columna `State` con `Up` para `php` y `nginx`, y mapeo de puertos (ej. `0.0.0.0:8080->80/tcp`).
 
-Then visit `http://localhost:8765` to see the welcome page.
+- Comprobar que la app responde HTTP:
+  - Comando: `curl -I http://localhost:8080`
+  - Éxito esperado: `HTTP/1.1 200 OK` o `302 Found`.
 
-## Update
+- Entrar en el contenedor PHP y comprobar versión de PHP:
+  - Comando: `docker compose exec php bash -lc "php -v"`
+  - Resultado esperado: si no hiciste el cambio, `PHP 8.2.x`; si actualizaste, `PHP 8.3.x`.
 
-Since this skeleton is a starting point for your application and various files
-would have been modified as per your needs, there isn't a way to provide
-automated upgrades, so you have to do any updates manually.
+- Instalar dependencias sin dev (rápido):
+  - `docker compose exec php bash -lc "composer install --no-dev --no-interaction --prefer-dist"`
+  - Éxito esperado: `Generating autoload files` sin errores.
 
-## Configuration
+-- Instalar dependencias con dev (ya configurado en este repo):
+  - El `Dockerfile` del proyecto usa `FROM php:8.3-fpm` y el contenedor tiene PHP 8.3; las dependencias dev están en `vendor/`.
+  - Para asegurar que todo está al día: `docker compose exec php bash -lc "composer install --no-interaction --prefer-dist"`.
 
-Read and edit the environment specific `config/app_local.php` and set up the
-`'Datasources'` and any other configuration relevant for your application.
-Other environment agnostic settings can be changed in `config/app.php`.
+- Ejecutar migraciones (si hace falta repetir):
+  - `docker compose exec php bash -lc "bin/cake migrations migrate"`
+  - Éxito esperado: `All Done. Took X.XXXXs` o `No migrations to run`.
 
-## Layout
+**Notas finales / Entrega**
 
-The app skeleton uses [Milligram](https://milligram.io/) (v1.3) minimalist CSS
-framework by default. You can, however, replace it with any other library or
-custom styles.
+He creado este `README.md` en español que recoge lo que se pidió y el estado actual del proyecto.  
+
+— Fin del README (versión automática generada teniendo en cuenta los archivos del repositorio y las salidas de tus comandos).
