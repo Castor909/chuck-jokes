@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use Cake\Http\Client;
+use Cake\Log\Log;
 
 class JokesController extends AppController
 {
@@ -10,7 +11,6 @@ class JokesController extends AppController
         $joke = null;
         $http = new Client();
 
-        // Si se envía el formulario (Guardar)
         if ($this->request->is('post')) {
             $posted = $this->request->getData('joke');
             if (!empty($posted)) {
@@ -18,18 +18,33 @@ class JokesController extends AppController
 
                 $jokesTable = $this->fetchTable('Jokes');
                 $entity = $jokesTable->newEmptyEntity();
-                $entity = $jokesTable->patchEntity($entity, ['joke' => $text]);
+
+                // Construir los campos que la entidad/validación esperan
+                $data = [
+                    'setup' => '',            // mantener vacío o poner un valor si se desea
+                    'punchline' => $text,
+                ];
+
+                $entity = $jokesTable->patchEntity($entity, $data);
 
                 if ($jokesTable->save($entity)) {
                     $this->Flash->success(__('Chiste guardado correctamente.'));
                     return $this->redirect(['action' => 'random']);
                 }
-                $this->Flash->error(__('No se pudo guardar el chiste.'));
+
+                // Nuevo: registrar y mostrar errores de validación/entidad
+                $errors = $entity->getErrors();
+                Log::warning('Joke save failed: ' . json_encode($errors));
+                if (!empty($errors)) {
+                    $this->Flash->error(__('No se pudo guardar el chiste. Errores: {0}', json_encode($errors)));
+                } else {
+                    $this->Flash->error(__('No se pudo guardar el chiste.'));
+                }
             } else {
                 $this->Flash->error(__('No hay texto para guardar.'));
             }
         } else {
-            // GET: pedimos un chiste a la API
+            // GET...
             $response = $http->get('https://api.chucknorris.io/jokes/random');
             if ($response->isOk()) {
                 $data = $response->getJson();

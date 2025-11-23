@@ -30,5 +30,7 @@ class Joke extends Entity
         'punchline' => true,
         'created' => true,
         'modified' => true,
+        'joke' => true,
+        '*' => false,
     ];
 }

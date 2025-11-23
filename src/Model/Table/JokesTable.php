@@ -58,7 +58,7 @@ class JokesTable extends Table
             ->scalar('setup')
             ->maxLength('setup', 255)
             ->requirePresence('setup', 'create')
-            ->notEmptyString('setup');
+            ->allowEmptyString('setup');
 
         $validator
             ->scalar('punchline')
