@@ -59,6 +59,10 @@
   - `docker compose exec php bash -lc "bin/cake migrations migrate"`
   - Éxito esperado: `All Done. Took X.XXXXs` o `No migrations to run`.
 
+**Capturas de pantalla**
+![chiste aliatorio guardado](image.png)
+![lista de chistes guardados con paginacion](image-1.png)
+![view de un chiste guardado con opcion de borrarlo](image-2.png)
 **Notas finales / Entrega**
 
 He creado este `README.md` en español que recoge lo que se pidió y el estado actual del proyecto.  
