@@ -1,0 +1,29 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: chuck-jokes-php
+    volumes:
+      - ./:/var/www/html:delegated
+    environment:
+      - DATABASE_PATH=/var/www/html/tmp/database.sqlite
+      - DEBUG=1
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
